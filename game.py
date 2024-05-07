@@ -3,22 +3,11 @@
 """
 
 import pygame
+from config import *
 
 
 class MenuItem:
-    """
-    Класс кнопок меню
-    """
-    def __init__(self, menu: 'MainMenu', screen, rect: pygame.Rect, text: str, color: tuple, name: str = "button"):
-        """
-
-        :param screen:
-        :param rect:
-        :param text:
-        :param color:
-        :param name:
-        :param position:
-        """
+    def __init__(self, menu: object, screen, rect: pygame.Rect, text: str, color: tuple, name: str = "item"):
         self.__screen = screen
         self.__rect = rect  # прямоугольник, описывающий положение и размер элемента
         self.__text = text  # текст элемента
@@ -32,10 +21,6 @@ class MenuItem:
         self.__menu.add_item(self)
 
     def display(self):
-        """
-
-        :return:
-        """
         # Отображение элемента на экране
         pygame.draw.rect(self.__screen, (255, 255, 255), self.__rect, border_radius=5)  # пример отображения элемента как прямоугольника
         font = pygame.font.SysFont(None, 48)
@@ -44,29 +29,32 @@ class MenuItem:
         self.__screen.blit(text_surface, text_rect)
 
     def click_action(self):
-        """
-
-        :return:
-        """
         # Действие, выполняемое при клике на элемент
         if self.__name == 'start':
-            clicker_menu = ClickerMenu(self.__screen)
-            clicker_menu.run()
             print("Start!")
         elif self.__name == 'end':
             print("end")
+            self.__menu.change_status()
             pygame.quit()
 
     def get_rect(self) -> pygame.Rect:
         return self.__rect
 
+
 class Menu:
     def __init__(self, screen):
         self.__screen = screen
         self.__menu_items: list[MenuItem] = []
+        self.__running: bool = True
 
     def add_item(self, item: MenuItem):
         self.__menu_items.append(item)
+
+    def get_menu_items(self) -> list[MenuItem]:
+        return self.__menu_items
+
+    def get_screen(self):
+        return self.__screen
 
     def display_menu(self):
         for item in self.__menu_items:
@@ -77,41 +65,63 @@ class Menu:
             if item.get_rect().collidepoint(pos):
                 item.click_action()
 
+    def get_status(self) -> bool:
+        return self.__running
+
+    def change_status(self):
+        self.__running = not self.__running
+
+
+class PlayerInterface:
+    def __init__(self, menus: dict):
+        self.__current_menu = None
+        self.__menus: dict = menus
+
+    def switch_menu(self, menu: str | object = None):
+        if type(menu) == str and menu is not None:
+            self.__current_menu = self.__menus[menu]
+        elif type(menu) == object and menu is not None:
+            self.__current_menu = menu
+        else:
+            self.__current_menu = None
+
+    def get_current_menu(self) -> dict:
+        return self.__current_menu
+
+    def get_menu(self, name: str) -> object:
+        return self.__menus[name]
+
 
 class MainMenu(Menu):
-    """
-    Класс меню
-    """
     def __init__(self, screen):
         super().__init__(screen)
-        #self.__next: ClickerMenu = ClickerMenu(screen)
 
+        self.initialize_buttons()
 
-    def go_to_next_menu(self, pos):
-        """
+    def initialize_buttons(self):
+        button1_x = (SCREEN_WIDTH - MAIN_MENU_BUTTON_WIDTH) // 2
+        button1_y = (SCREEN_HEIGHT - MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
 
-        :param pos:
-        :return:
-        """
-        pass
+        button2_x = button1_x
+        button2_y = button1_y + MAIN_MENU_BUTTON_HEIGHT + 30
+
+        # Инициализация кнопки "Начать игру"
+        MenuItem(self, self.get_screen(),
+                 pygame.Rect(button1_x, button1_y, MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT),
+                 "Начать игру",
+                 (0, 0, 0),
+                 "start")
+
+        # Инициализация кнопки "Выход"
+        MenuItem(self, self.get_screen(),
+                 pygame.Rect(button2_x, button2_y, MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT),
+                 "Выход",
+                 (0, 0, 0),
+                 "end")
 
 
 class UpgradeButton:
-    """
-    Класс кнопок в меню кликера
-    """
     def __init__(self, screen, x, y, width, height, color, text, click_action):
-        """
-
-        :param screen:
-        :param x:
-        :param y:
-        :param width:
-        :param height:
-        :param color:
-        :param text:
-        :param click_action:
-        """
         self.screen = screen
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
@@ -138,70 +148,35 @@ class UpgradeButton:
 
 
 class ClickerMenu(Menu):
-    """
-    Класс меню кликера
-    """
     def __init__(self, screen):
         super().__init__(screen)
 
-        # Создание кнопок для улучшения кликов
-        self.create_click_upgrade_buttons()
+        self.initialize_buttons()
 
-    def create_click_upgrade_buttons(self):
-        """
 
-        :return:
-        """
-        # Создание кнопок для улучшения кликов
-        button1 = UpgradeButton(self._Menu__screen, 50, 100, 200, 50, (0, 0, 255), "Увеличить урон", self.increase_damage)
-        button2 = UpgradeButton(self._Menu__screen, 50, 200, 200, 50, (0, 0, 255), "Увеличить скорость клика", self.increase_click_speed)
-        self.add_item(button1)
-        self.add_item(button2)
+    def initialize_buttons(self):
+        button1_x = (SCREEN_WIDTH - MAIN_MENU_BUTTON_WIDTH) // 2
+        button1_y = (SCREEN_HEIGHT - MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
 
-    def increase_damage(self):
-        """
+        button2_x = button1_x
+        button2_y = button1_y + MAIN_MENU_BUTTON_HEIGHT + 30
 
-        :return:
-        """
-        # Реализация увеличения урона при клике
-        pass
+        # Инициализация кнопки "Начать игру"
+        MenuItem(self, self.get_screen(),
+                 pygame.Rect(button1_x, button1_y, MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT),
+                 "Улучшения кликов",
+                 (0, 0, 0),
+                 "start")
 
-    def increase_click_speed(self):
-        """
+        # Инициализация кнопки "Выход"
+        MenuItem(self, self.get_screen(),
+                 pygame.Rect(button2_x, button2_y, MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT),
+                 "Выход",
+                 (0, 0, 0),
+                 "end")
 
-        :return:
-        """
-        # Реализация увеличения скорости клика
-        pass
 
-    def draw(self):
-        """
-
-        :return:
-        """
-        # Отрисовка меню кликера
-        super().draw()  # Отрисовка базового меню
-
-        # Отрисовка кнопок для улучшения кликов
-        for button in self.click_upgrade_buttons:
-            button.draw()
-
-    def handle_click(self, pos):
-        # Обработка клика в меню кликера
-        super().handle_click(pos)  # Обработка клика в базовом меню
-
-        # Проверка клика по кнопкам для улучшения кликов
-        for button in self.click_upgrade_buttons:
-            if button.rect.collidepoint(pos):
-                button.handle_click()
-
-    def run(self):
-        pass
-
-class AutoClickerMenu(Menu):
-    """
-    Класс меню прокачки автокликера
-    """
+class AutoClickerMenu:
     def display_menu(self):
         pass
 
@@ -209,10 +184,7 @@ class AutoClickerMenu(Menu):
         pass
 
 
-class Monster(Menu):
-    """
-    Класс монтсров
-    """
+class Monster:
     def display_menu(self):
         pass
 
@@ -221,9 +193,6 @@ class Monster(Menu):
 
 
 class Player:
-    """
-    Класс игрока
-    """
     def __init__(self):
         self.__money: int = 10
         self.__player_items: list = []
