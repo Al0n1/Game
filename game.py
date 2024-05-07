@@ -43,7 +43,7 @@ class MenuItem:
         """
         # Действие, выполняемое при клике на элемент
         if self.name == 'start':
-            clicker_menu = ClickerMenu(self.screen, self.width, self.height)
+            clicker_menu = ClickerMenu(self.screen)
             clicker_menu.run()
             print("Start!")
         elif self.name == 'end':
@@ -52,13 +52,21 @@ class MenuItem:
 
 
 class Menu:
-    """
-    Класс меню
-    """
     def __init__(self, screen):
         self.screen = screen
         self.menu_items: MenuItem = []
 
+    def display_menu(self):
+        pass
+
+    def handle_click(self):
+        pass
+
+
+class MainMenu(Menu):
+    """
+    Класс меню
+    """
     def display_menu(self):
         """
 

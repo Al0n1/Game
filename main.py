@@ -9,7 +9,7 @@ def start_game():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
 
-    menu = Menu(screen)
+    menu = MainMenu(screen)
 
     button1_x = (SCREEN_WIDTH - MAIN_MENU_BUTTON_WIDTH) // 2
     button1_y = (SCREEN_HEIGHT - MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
