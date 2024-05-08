@@ -7,7 +7,7 @@ from config import *
 
 
 class MenuItem:
-    def __init__(self, menu: object, screen, rect: pygame.Rect, text: str, color: tuple, name: str = "item"):
+    def __init__(self, menu: 'Menu', screen, rect: pygame.Rect, text: str, color: tuple, name: str = "item"):
         self.__screen = screen
         self.__rect = rect  # прямоугольник, описывающий положение и размер элемента
         self.__text = text  # текст элемента
@@ -32,9 +32,11 @@ class MenuItem:
         # Действие, выполняемое при клике на элемент
         if self.__name == 'start':
             print("Start!")
+            interface = self.__menu.get_interface()
+            interface.switch_menu(self.__menu.get_next_menu())
         elif self.__name == 'end':
             print("end")
-            self.__menu.change_status()
+            self.__menu.change_status(False)
             pygame.quit()
 
     def get_rect(self) -> pygame.Rect:
@@ -42,10 +44,13 @@ class MenuItem:
 
 
 class Menu:
-    def __init__(self, screen):
+    def __init__(self, screen, player_interface):
         self.__screen = screen
         self.__menu_items: list[MenuItem] = []
         self.__running: bool = True
+        self.__next_menu = None
+        self.__prev_menu = None
+        self.__interface = player_interface
 
     def add_item(self, item: MenuItem):
         self.__menu_items.append(item)
@@ -56,7 +61,7 @@ class Menu:
     def get_screen(self):
         return self.__screen
 
-    def display_menu(self):
+    def display_menu_items(self):
         for item in self.__menu_items:
             item.display()
 
@@ -68,19 +73,38 @@ class Menu:
     def get_status(self) -> bool:
         return self.__running
 
-    def change_status(self):
-        self.__running = not self.__running
+    def change_status(self, status: bool = None):
+        self.__running = not self.__running if status is None else status
+
+    def initialize_buttons(self):
+        pass
+
+    def set_next_menu(self, menu):
+        self.__next_menu = menu
+
+    def set_prev_menu(self, menu):
+        self.__prev_menu = menu
+        menu.set_next_menu(self)
+
+    def get_next_menu(self):
+        return self.__next_menu
+
+    def get_prev_menu(self):
+        return self.__prev_menu
+
+    def get_interface(self):
+        return self.__interface
 
 
 class PlayerInterface:
-    def __init__(self, menus: dict):
+    def __init__(self, menus: dict = {}):
         self.__current_menu = None
         self.__menus: dict = menus
 
     def switch_menu(self, menu: str | object = None):
-        if type(menu) == str and menu is not None:
+        if isinstance(menu, str) and menu is not None:
             self.__current_menu = self.__menus[menu]
-        elif type(menu) == object and menu is not None:
+        elif isinstance(menu, object) and menu is not None:
             self.__current_menu = menu
         else:
             self.__current_menu = None
@@ -91,10 +115,13 @@ class PlayerInterface:
     def get_menu(self, name: str) -> object:
         return self.__menus[name]
 
+    def set_menus(self, menus: dict):
+        self.__menus = menus
+
 
 class MainMenu(Menu):
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen, player_interface):
+        super().__init__(screen, player_interface)
 
         self.initialize_buttons()
 
@@ -120,48 +147,21 @@ class MainMenu(Menu):
                  "end")
 
 
-class UpgradeButton:
-    def __init__(self, screen, x, y, width, height, color, text, click_action):
-        self.screen = screen
-        self.rect = pygame.Rect(x, y, width, height)
-        self.color = color
-        self.text = text
-        self.click_action = click_action
-
-    def draw(self):
-        """
-
-        :return:
-        """
-        pygame.draw.rect(self.screen, self.color, self.rect)
-        font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(self.text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        self.screen.blit(text_surface, text_rect.topleft)
-
-    def handle_click(self):
-        """
-
-        :return:
-        """
-        self.click_action()
-
-
 class ClickerMenu(Menu):
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen, main_menu, player_interface):
+        super().__init__(screen, player_interface)
 
-        self.initialize_buttons()
+        self.set_prev_menu(main_menu)
+        self.initialize_items()
 
+    def initialize_items(self):
+        button1_x = (SCREEN_WIDTH - CLICKER_MENU_BUTTON_WIDTH) // 2
+        button1_y = (SCREEN_HEIGHT - CLICKER_MENU_BUTTON_HEIGHT) // 2
 
-    def initialize_buttons(self):
-        button1_x = (SCREEN_WIDTH - MAIN_MENU_BUTTON_WIDTH) // 2
-        button1_y = (SCREEN_HEIGHT - MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
+        button2_x = button1_x + CLICKER_MENU_BUTTON_WIDTH
+        button2_y = button1_y
 
-        button2_x = button1_x
-        button2_y = button1_y + MAIN_MENU_BUTTON_HEIGHT + 30
-
-        # Инициализация кнопки "Начать игру"
+        # Инициализация кнопки "Улучшения кликов"
         MenuItem(self, self.get_screen(),
                  pygame.Rect(button1_x, button1_y, MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT),
                  "Улучшения кликов",
@@ -184,11 +184,45 @@ class AutoClickerMenu:
         pass
 
 
+class MonsterSprite(pygame.sprite.Sprite):
+    """
+    Класс спрайта монстра
+    """
+    def __init__(self, image_path, x, y):
+        super().__init__()
+        self.image = pygame.image.load(image_path).convert_alpha()  # Загружаем изображение монстра
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
 class Monster:
-    def display_menu(self):
-        pass
+    """
+    Класс для отображения монстра
+    """
+    def __init__(self, screen, x, y, width, height, color):
+        self.screen = screen
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+        self.health = 10  # Здоровье монстра
+
+    def draw(self):
+        """
+        Отрисовка монстра
+        """
+        pygame.draw.rect(self.screen, self.color, self.rect)
+        font = pygame.font.SysFont(None, 24)
+        text_surface = font.render(f"Health: {self.health}", True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))
+        self.screen.blit(text_surface, text_rect)
 
     def handle_click(self):
+        pass
+
+    def change_monster(self):
+        pass
+
+    def set_hp_to_monster(self):
         pass
 
 
