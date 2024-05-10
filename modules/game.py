@@ -1,9 +1,17 @@
 """
-Модуль содержащий классы игры
+author: Al0n1
+version: 0.0.1
+
+:description:
+Модуль содержащий классы меню и элементов меню
 """
 
-import pygame
+
 from config import *
+from colours import *
+from spritesheet import SpriteSheet
+import pygame
+import random
 
 
 class MenuItem:
@@ -51,6 +59,7 @@ class Menu:
         self.__next_menu = None
         self.__prev_menu = None
         self.__interface = player_interface
+        self.__background_color: tuple = WHITE
 
     def add_item(self, item: MenuItem):
         self.__menu_items.append(item)
@@ -94,6 +103,12 @@ class Menu:
 
     def get_interface(self):
         return self.__interface
+
+    def get_background_color(self):
+        return self.__background_color
+
+    def set_background_color(self, color):
+        self.__background_color = color
 
 
 class PlayerInterface:
@@ -201,10 +216,15 @@ class Monster:
     Класс для отображения монстра
     """
     def __init__(self, screen, x, y, width, height, color):
-        self.screen = screen
-        self.rect = pygame.Rect(x, y, width, height)
-        self.color = color
-        self.health = 10  # Здоровье монстра
+        self.__screen = screen
+        self.__rect = pygame.Rect(x, y, width, height)
+        self.__color = color
+        self.__health = 10  # Здоровье монстра
+        self.__monster_name = None
+        self.__filename_of_sprite = None
+        self.__sprite = None
+
+        self.change_monster()
 
     def draw(self):
         """
@@ -219,7 +239,17 @@ class Monster:
     def handle_click(self):
         pass
 
-    def change_monster(self):
+    def change_monster(self, monster_name: str = random.choice(MONSTERS_IN_CLICKER)):
+        self.__monster_name = monster_name
+        self.__filename_of_sprite = self.__monster_name + "_sheet_idle.png"
+        self.__sprite = SpriteSheet(self.__filename_of_sprite)
+
+    def change_monster_state(self, state):
+        """
+        Функция изменяет состояние текущего монстра, например монстр атакует или получает урон
+        :param state:
+        :return:
+        """
         pass
 
     def set_hp_to_monster(self):

@@ -1,7 +1,17 @@
-import pygame
+"""
+author: Al0n1
+version: 0.0.1
+
+:description:
+Модуль для запуска игры
+"""
+
+
 from game import *
 from config import *
 from colours import *
+from spritesheet import SpriteSheet
+import pygame
 
 
 def game():
@@ -19,21 +29,22 @@ def game():
         #"rogue menu": RogueLikeMenu(screen),
         #"settings menu": SettingsMenu(screen)
     }
+    menus["main menu"].set_background_color(LIGHT_GRAY)
+
     player_interface.set_menus(menus)
     player_interface.switch_menu("main menu")
-    monster = Monster(screen, 100, 100, 30, 30, RED)
 
     running = True
     while running:
-        current_menu = player_interface.get_current_menu()
-        screen.fill(LIGHT_GRAY)
+        current_menu: 'Menu' = player_interface.get_current_menu()
+        screen.fill(current_menu.get_background_color())
         current_menu.display_menu_items()
         pygame.display.flip()
-        monster.draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                break
                 pygame.quit()
+                running = False
+                break
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Левая кнопка мыши
                     current_menu.handle_click(event.pos)

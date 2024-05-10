@@ -1,4 +1,8 @@
 """
+author: Al0n1
+version: 0.0.1
+
+:description:
 Модуль констант
 """
 
@@ -9,3 +13,9 @@ MAIN_MENU_BUTTON_WIDTH: int = SCREEN_WIDTH * 3 // 10
 MAIN_MENU_BUTTON_HEIGHT: int = SCREEN_HEIGHT // 10
 CLICKER_MENU_BUTTON_WIDTH: int = SCREEN_WIDTH * 1.5 // 10
 CLICKER_MENU_BUTTON_HEIGHT: int = SCREEN_HEIGHT // 15
+
+MONSTERS_IN_CLICKER: list[str] = [
+    'zombieMale',
+    'zombieFemale',
+    'zombieWild',
+]
