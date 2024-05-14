@@ -1,6 +1,6 @@
 """
 author: Al0n1
-version: 0.0.1
+version: 0.0.2
 
 :description:
 Модуль констант
@@ -19,3 +19,6 @@ MONSTERS_IN_CLICKER: list[str] = [
     'zombieFemale',
     'zombieWild',
 ]
+SCALE_OF_MONSTERS_IN_CLICKER: int = 3
+PLAYER_DAMAGE_IN_CLICKER: float = 1.0
+MONSTER_HP_IN_CLICKER: float = 10.0
