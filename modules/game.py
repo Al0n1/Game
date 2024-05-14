@@ -1,6 +1,6 @@
 """
 author: Al0n1
-version: 0.0.1
+version: 0.0.2
 
 :description:
 Модуль содержащий классы меню и элементов меню
@@ -14,6 +14,7 @@ import pygame
 import random
 
 
+# <editor-fold desc="Классы меню">
 class MenuItem:
     def __init__(self, menu: 'Menu', screen, rect: pygame.Rect, text: str, color: tuple, name: str = "item"):
         self.__screen = screen
@@ -190,6 +191,8 @@ class ClickerMenu(Menu):
                  (0, 0, 0),
                  "end")
 
+        self.add_item(Monster(self.get_screen()))
+
 
 class AutoClickerMenu:
     def display_menu(self):
@@ -197,8 +200,10 @@ class AutoClickerMenu:
 
     def handle_click(self):
         pass
+# </editor-fold>
 
 
+# <editor-fold desc="Классы монстров">
 class MonsterSprite(pygame.sprite.Sprite):
     """
     Класс спрайта монстра
@@ -215,32 +220,37 @@ class Monster:
     """
     Класс для отображения монстра
     """
-    def __init__(self, screen, x, y, width, height, color):
-        self.__screen = screen
-        self.__rect = pygame.Rect(x, y, width, height)
-        self.__color = color
-        self.__health = 10  # Здоровье монстра
+    def __init__(self, screen):
+        self.__screen: pygame.Surface = screen
+        self.__pos = (50, 75)
+        self.__rect = pygame.Rect(self.__pos[0], self.__pos[1],
+                                  96*SCALE_OF_MONSTERS_IN_CLICKER, 96*SCALE_OF_MONSTERS_IN_CLICKER,
+                                  border_radius=5)
+        self.__health = MONSTER_HP_IN_CLICKER  # Здоровье монстра
         self.__monster_name = None
         self.__filename_of_sprite = None
         self.__sprite = None
 
         self.change_monster()
 
-    def draw(self):
-        """
-        Отрисовка монстра
-        """
-        pygame.draw.rect(self.screen, self.color, self.rect)
+    def display(self):
+        #pygame.draw.rect(self.__screen, self.__rect)
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(f"Health: {self.health}", True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))
-        self.screen.blit(text_surface, text_rect)
+        text_surface = font.render(f"Health: {self.__health}", True, BLACK)
+        text_rect = text_surface.get_rect(center=(self.__rect.centerx, self.__rect.bottom + 10))
+        self.__screen.blit(self.__sprite.parse_sprite(scale=SCALE_OF_MONSTERS_IN_CLICKER), (0, 0))
 
-    def handle_click(self):
-        pass
+        self.__screen.blit(text_surface, (self.__rect.centerx, self.__rect.bottom + 10))
 
-    def change_monster(self, monster_name: str = random.choice(MONSTERS_IN_CLICKER)):
-        self.__monster_name = monster_name
+    def click_action(self):
+        if self.__health <= 1:
+            self.change_monster()
+            self.__health = MONSTER_HP_IN_CLICKER
+        else:
+            self.change_hp_to_monster(-1)
+
+    def change_monster(self, monster_name: str = None):
+        self.__monster_name = random.choice(MONSTERS_IN_CLICKER) if monster_name is None else monster_name
         self.__filename_of_sprite = self.__monster_name + "_sheet_idle.png"
         self.__sprite = SpriteSheet(self.__filename_of_sprite)
 
@@ -252,9 +262,15 @@ class Monster:
         """
         pass
 
-    def set_hp_to_monster(self):
-        pass
+    def set_hp_to_monster(self, value: float):
+        self.health = value
 
+    def change_hp_to_monster(self, value: float):
+        self.__health += value
+
+    def get_rect(self) -> pygame.Rect:
+        return self.__rect
+# </editor-fold>
 
 class Player:
     def __init__(self):
