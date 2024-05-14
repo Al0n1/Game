@@ -1,6 +1,6 @@
 """
 author: Al0n1
-version: 0.0.1
+version: 0.0.2
 
 :description:
 Модуль содержит класс листа спрайтов. Этот класс содержит функции позволяющие выделить из листа
@@ -22,8 +22,8 @@ class SpriteSheet:
         :param state: состояние объекта на спрайте
         """
         self.__filename = filename
-        self.__sprite_sheet = pygame.image.load(filename).convert_alpha()
-        with open("sprite_sheet.json", "r") as file:
+        self.__sprite_sheet = pygame.image.load(f"../Game/sprites/zombies/{filename}").convert_alpha()
+        with open("../Game/sprites/sprite_sheet.json", "r") as file:
             filename = filename[:filename.find('_')]
             self.__data = json.load(file)['frames'][filename]
         self.__last_tick = pygame.time.get_ticks()
