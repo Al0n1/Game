@@ -225,16 +225,20 @@ class Monster:
         self.change_monster()
 
     def display(self):
-        a = self._get_frame_index()
-        b = self._get_number_of_frames()
-        if self.__state == "hurt":
-            print('hurt')
-        if self._get_frame_index() >= self._get_number_of_frames() - 1 and self._get_state != "idle":
-            self.__state = "idle"
-            self.__frame_index = 0
+        if (self._get_frame_index() >= self._get_number_of_frames() - 1) and (self._get_state() != "idle"):
+            if self.__state == 'dead':
+                self.set_cooldown(500)
+                if self._can_change_sprite():
+                    self.__frame_index = 0
+                    self.__state = "idle"
+                    self.change_monster()
+                    self.set_cooldown(200)
+            else:
+                self.__frame_index = 0
+                self.__state = "idle"
+                self.change_monster(self.__monster_name)
+        elif self._can_change_sprite():
             self.set_cooldown(200)
-            self.change_monster(self.__monster_name)
-        if self._can_change_sprite():
             self.change_frame_index()
 
         font = pygame.font.SysFont(None, 24)
@@ -246,14 +250,15 @@ class Monster:
     def click_action(self):
         self.__state = 'hurt'
         self.__frame_index = 0
-        self.change_monster(self.__monster_name)
-        #self.set_cooldown(100)
+        self.change_monster(self.__monster_name) # Переключает спрайт стоящего зомби на зомби получающего удар
+        # Обработка смерти монстра
         if self.__health <= 1:
-            self.change_monster()
-            self.__state = 'idle'
+            self.__state = 'dead'
+            self.change_monster(self.__monster_name)
             self.__health = MONSTER_HP_IN_CLICKER
         else:
             self.change_hp_to_monster(-1)
+
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(MONSTERS_IN_CLICKER) if monster_name is None else monster_name
