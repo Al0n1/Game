@@ -1,6 +1,6 @@
 """
 author: Al0n1
-version: 0.0.2
+version: 0.0.3
 
 :description:
 Модуль содержащий классы меню и элементов меню
@@ -204,55 +204,62 @@ class AutoClickerMenu:
 
 
 # <editor-fold desc="Классы монстров">
-class MonsterSprite(pygame.sprite.Sprite):
-    """
-    Класс спрайта монстра
-    """
-    def __init__(self, image_path, x, y):
-        super().__init__()
-        self.image = pygame.image.load(image_path).convert_alpha()  # Загружаем изображение монстра
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-
 class Monster:
     """
     Класс для отображения монстра
     """
     def __init__(self, screen):
         self.__screen: pygame.Surface = screen
-        self.__pos = (50, 75)
-        self.__rect = pygame.Rect(self.__pos[0], self.__pos[1],
-                                  96*SCALE_OF_MONSTERS_IN_CLICKER, 96*SCALE_OF_MONSTERS_IN_CLICKER,
-                                  border_radius=5)
-        self.__health = MONSTER_HP_IN_CLICKER  # Здоровье монстра
-        self.__monster_name = None
-        self.__filename_of_sprite = None
-        self.__sprite = None
+        self.__pos: tuple = (50, 75)
+        self.__rect: pygame.Rect = pygame.Rect(self.__pos[0], self.__pos[1], 96*SCALE_OF_MONSTERS_IN_CLICKER, 96*SCALE_OF_MONSTERS_IN_CLICKER, border_radius=5)
+        self.__health: float = MONSTER_HP_IN_CLICKER  # Здоровье монстра
+        self.__monster_name: str = None
+        self.__filename_of_sprite: str = None
+        self.__sprite: SpriteSheet = None
+        self.__frame_index: int = 0
+        self.__state: str = "idle"
+        self.__last_frame_tick: int = pygame.time.get_ticks()
+        self.__cooldown: int = 200
+        self.__monster_sprite_data: dict = {}
 
         self.change_monster()
 
     def display(self):
-        #pygame.draw.rect(self.__screen, self.__rect)
+        a = self._get_frame_index()
+        b = self._get_number_of_frames()
+        if self.__state == "hurt":
+            print('hurt')
+        if self._get_frame_index() >= self._get_number_of_frames() - 1 and self._get_state != "idle":
+            self.__state = "idle"
+            self.__frame_index = 0
+            self.set_cooldown(200)
+            self.change_monster(self.__monster_name)
+        if self._can_change_sprite():
+            self.change_frame_index()
+
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(f"Health: {self.__health}", True, BLACK)
-        text_rect = text_surface.get_rect(center=(self.__rect.centerx, self.__rect.bottom + 10))
-        self.__screen.blit(self.__sprite.parse_sprite(scale=SCALE_OF_MONSTERS_IN_CLICKER), (0, 0))
+        self.__screen.blit(self.__sprite.parse_sprite(scale=SCALE_OF_MONSTERS_IN_CLICKER, sprite_index=self.__frame_index, state=self.__state), (0, 0))
 
         self.__screen.blit(text_surface, (self.__rect.centerx, self.__rect.bottom + 10))
 
     def click_action(self):
+        self.__state = 'hurt'
+        self.__frame_index = 0
+        self.change_monster(self.__monster_name)
+        #self.set_cooldown(100)
         if self.__health <= 1:
             self.change_monster()
+            self.__state = 'idle'
             self.__health = MONSTER_HP_IN_CLICKER
         else:
             self.change_hp_to_monster(-1)
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(MONSTERS_IN_CLICKER) if monster_name is None else monster_name
-        self.__filename_of_sprite = self.__monster_name + "_sheet_idle.png"
+        self.__filename_of_sprite = self.__monster_name + f"_sheet_{self.__state}.png"
         self.__sprite = SpriteSheet(self.__filename_of_sprite)
+        self.__monster_sprite_data = self.__sprite.get_data()
 
     def change_monster_state(self, state):
         """
@@ -260,7 +267,7 @@ class Monster:
         :param state:
         :return:
         """
-        pass
+        self.__state = state
 
     def set_hp_to_monster(self, value: float):
         self.health = value
@@ -270,7 +277,40 @@ class Monster:
 
     def get_rect(self) -> pygame.Rect:
         return self.__rect
+
+    def change_frame_index(self):
+        self.__frame_index = (self.__frame_index + 1) % (self._get_number_of_frames())
+
+    def set_cooldown(self, value: int):
+        """
+        Устанавливает задержку в смене кадров анимации спрайта
+        :param value: значение в мс, через какое время должна произойти смена кадра анимации спрайта
+        """
+
+        self.__cooldown = value
+
+    def _can_change_sprite(self) -> bool:
+        """
+        Функция проверяет прошло ли достаточно времени для смены кадра спрайта
+        :return: True/False
+        """
+        now = pygame.time.get_ticks()
+        if now - self.__last_frame_tick >= self.__cooldown:
+            self.__last_frame_tick = now
+            return True
+        else:
+            return False
+
+    def _get_state(self) -> str:
+        return self.__state
+
+    def _get_number_of_frames(self) -> int:
+        return self.__monster_sprite_data[self.__state]["info"]["numbers_of_frames"]
+
+    def _get_frame_index(self) -> int:
+        return self.__frame_index
 # </editor-fold>
+
 
 class Player:
     def __init__(self):
