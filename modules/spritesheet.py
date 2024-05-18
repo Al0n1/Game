@@ -27,7 +27,7 @@ class SpriteSheet:
             filename = filename[:filename.find('_')]
             self.__data = json.load(file)['frames'][filename]
 
-    def _get_sprite(self, x: int, y: int, w: int, h: int, scale: int) -> pygame.Surface:
+    def _get_sprite(self, x: int, y: int, w: int, h: int, scale: int, pos: tuple) -> pygame.Surface:
         """
         Функция создаёт поверхность pygame и выводит на неё спрайт
         :param x: координата левого верхнего края спрайта по оси x
@@ -39,11 +39,11 @@ class SpriteSheet:
         """
         sprite = pygame.Surface((w, h))
         sprite.set_colorkey((0, 0, 0))
-        sprite.blit(self.__sprite_sheet, (0, 0), (x, y, w, h))
+        sprite.blit(self.__sprite_sheet, (0,0), (x, y, w, h))
         sprite = pygame.transform.scale(sprite, (w * scale, h * scale))
         return sprite
 
-    def parse_sprite(self, state: str, sprite_index: int = 1, scale: int = 1, ) -> pygame.Surface:
+    def parse_sprite(self, state: str, pos: tuple, sprite_index: int = 1, scale: int = 1) -> pygame.Surface:
         """
         Функция находит нужный спрайт и его параметры в метаданных
         :param state: состояние монстра для отображения
@@ -53,7 +53,7 @@ class SpriteSheet:
         """
         sprite = self.__data[state][f'frame_{sprite_index}']['frame']
         x, y, w, h = sprite["x"], sprite["y"], sprite["w"], sprite["h"]
-        image = self._get_sprite(x, y, w, h, scale)
+        image = self._get_sprite(x, y, w, h, scale, pos)
         return image
 
     def get_data(self) -> dict:
