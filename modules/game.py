@@ -221,6 +221,9 @@ class Monster:
         self.__last_frame_tick: int = pygame.time.get_ticks()
         self.__cooldown: int = 200
         self.__monster_sprite_data: dict = {}
+        self.__already_dead: bool = False # метка того, что анимация смерти уже проигрывается, если true,то клики перестают обрабатываться
+
+        self.__monster_window: pygame.Surface = pygame.Surface((96*SCALE_OF_MONSTERS_IN_CLICKER, 96*SCALE_OF_MONSTERS_IN_CLICKER))
 
         self.change_monster()
 
@@ -232,6 +235,8 @@ class Monster:
                     self.__frame_index = 0
                     self.__state = "idle"
                     self.change_monster()
+                    self.__health = MONSTER_HP_IN_CLICKER
+                    self.__already_dead = False
                     self.set_cooldown(200)
             else:
                 self.__frame_index = 0
@@ -243,22 +248,22 @@ class Monster:
 
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(f"Health: {self.__health}", True, BLACK)
-        self.__screen.blit(self.__sprite.parse_sprite(scale=SCALE_OF_MONSTERS_IN_CLICKER, sprite_index=self.__frame_index, state=self.__state), (0, 0))
+        self.__screen.blit(self.__sprite.parse_sprite(scale=SCALE_OF_MONSTERS_IN_CLICKER, sprite_index=self.__frame_index, state=self.__state, pos=self.__pos), (100, 0))
 
         self.__screen.blit(text_surface, (self.__rect.centerx, self.__rect.bottom + 10))
 
     def click_action(self):
-        self.__state = 'hurt'
-        self.__frame_index = 0
-        self.change_monster(self.__monster_name) # Переключает спрайт стоящего зомби на зомби получающего удар
-        # Обработка смерти монстра
-        if self.__health <= 1:
-            self.__state = 'dead'
-            self.change_monster(self.__monster_name)
-            self.__health = MONSTER_HP_IN_CLICKER
-        else:
-            self.change_hp_to_monster(-1)
+        if not self.__already_dead:
+            self.__state = 'hurt'
+            self.__frame_index = 0
+            self.change_monster(self.__monster_name) # Переключает спрайт стоящего зомби на зомби получающего удар
+            # Обработка смерти монстра
+            if self.__health <= 1:
+                self.__state = 'dead'
+                self.change_monster(self.__monster_name)
+                self.__already_dead = True
 
+            self.change_hp_to_monster(-1)
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(MONSTERS_IN_CLICKER) if monster_name is None else monster_name
