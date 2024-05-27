@@ -169,6 +169,7 @@ class ClickerMenu(Menu):
 
         self.set_prev_menu(main_menu)
         self.initialize_items()
+        self.__background_color: tuple = GRAY
 
     def initialize_items(self):
         button1_x = (SCREEN_WIDTH - CLICKER_MENU_BUTTON_WIDTH) // 2

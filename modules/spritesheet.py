@@ -10,6 +10,7 @@ version: 0.0.3
 
 import json
 import pygame
+from colours import *
 
 
 class SpriteSheet:
@@ -38,7 +39,7 @@ class SpriteSheet:
         :return: поверхность pygame со спрайтом
         """
         sprite = pygame.Surface((w, h))
-        sprite.set_colorkey((0, 0, 0))
+        sprite.set_colorkey(BLACK)
         sprite.blit(self.__sprite_sheet, (0,0), (x, y, w, h))
         sprite = pygame.transform.scale(sprite, (w * scale, h * scale))
         return sprite
