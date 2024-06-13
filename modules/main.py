@@ -1,10 +1,5 @@
-"""
-author: Al0n1
-version: 0.0.1
-
-:description:
-Модуль для запуска игры
-"""
+__author__ = "Al0n1"
+__version__ = "0.0.1"
 
 
 from game import *
@@ -19,7 +14,7 @@ def game():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
 
-    player_interface = PlayerInterface()
+    player_interface = PlayerInterface({})
     main_menu = MainMenu(screen, player_interface)
     clicker_menu = ClickerMenu(screen, main_menu, player_interface)
 
