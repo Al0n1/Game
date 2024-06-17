@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 from colors import *
@@ -11,7 +11,7 @@ import pygame
 
 
 class Menu:
-    def __init__(self, screen, player_interface):
+    def __init__(self, screen, player_interface, game):
         self.__screen = screen
         self.__menu_items: list = []
         self.__running: bool = True
@@ -19,7 +19,8 @@ class Menu:
         self.__prev_menu = None
         self.__interface = player_interface
         self.__background_color: tuple = WHITE
-        self.__player = None
+        self.__game = game
+        self.__player = game.get_player()
 
     def add_item(self, item: object):
         self.__menu_items.append(item)
@@ -70,14 +71,26 @@ class Menu:
     def set_background_color(self, color):
         self.__background_color = color
 
+    def get_game(self) -> 'Game':
+        return self.__game
+
+    def get_player(self) -> 'Player':
+        return self.__player
+
 
 class MainMenu(Menu):
-    def __init__(self, screen, player_interface):
-        super().__init__(screen, player_interface)
+    def __init__(self, screen, player_interface, game):
+        super().__init__(screen, player_interface, game)
 
-        self.initialize_buttons()
+        self.initialize_items()
 
-    def initialize_buttons(self):
+        """self.input_rect = pygame.Rect(200, 200, 140, 32)
+        self.color_active = pygame.Color('lightskyblue3')
+        self.color_passive = pygame.Color('chartreuse4')
+        self.color = self.color_passive
+        self.active = False"""
+
+    def initialize_items(self):
         button1_x = (Settings.SCREEN_WIDTH - Utils.MAIN_MENU_BUTTON_WIDTH) // 2
         button1_y = (Settings.SCREEN_HEIGHT - Utils.MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
 
@@ -100,10 +113,22 @@ class MainMenu(Menu):
                    name="end",
                    font=pygame.font.SysFont(None, 48))
 
+    """def get_status_of_input(self) -> bool:
+        return self.active
+
+    def change_status_of_input(self):
+        self.active = not self.active
+
+    def get_input_rect(self):
+        return self.input_rect
+
+    def change_color_of_input(self):
+        self.color = self.color_active if self.color is self.color_passive else self.color_passive"""
+
 
 class ClickerMenu(Menu):
-    def __init__(self, screen, main_menu, player_interface):
-        super().__init__(screen, player_interface)
+    def __init__(self, screen, main_menu, player_interface, game):
+        super().__init__(screen, player_interface, game)
 
         self.__upgrades: list['UpgradeButton'] = []
 
@@ -143,10 +168,6 @@ class ClickerMenu(Menu):
             upgrade_button_y += Utils.CLICKER_UPGRADE_BUTTON_INDENT + Utils.CLICKER_UPGRADE_BUTTON_HEIGHT
 
         self.add_item(Monster(screen=self.get_screen(), menu=self))
-        self.__player = Player()
-
-    def get_player(self) -> 'Player':
-        return self.__player
 
 
 class AutoClickerMenu:

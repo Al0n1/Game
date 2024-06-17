@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 import pygame
@@ -75,7 +75,7 @@ class UpgradeButton(Button):
 
     def change_status(self):
         self.__status = not self.__status
-        with open('upgrades.json') as f:
+        with open('upgrades.json', 'r') as f:
             data = json.load(f)
         data[self.get_name()]['status'] = not data[self.get_name()]['status']
         with open('upgrades.json', 'w') as f:
@@ -98,3 +98,7 @@ class UpgradeButton(Button):
             if target == "clickerPlayer":
                 self.get_menu().get_player().change_clicker_damage(value)
             self.set_color(GRAY)
+
+
+#class ChangePlayerName(Button):
+

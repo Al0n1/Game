@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 import pygame
 from config import Utils
@@ -73,6 +73,7 @@ class Monster:
                 self.__state = 'dead'
                 self.change_monster(self.__monster_name)
                 self.__already_dead = True
+                self.__menu.get_player().change_money(Utils.REWARD_FOR_KILL)
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(Utils.MONSTERS_IN_CLICKER) if monster_name is None else monster_name
@@ -121,11 +122,19 @@ class Monster:
 
 
 class Player:
-    def __init__(self):
-        self.__money: int = 10
-        self.__player_items: list = []
-        self.__health: float = 100.0
-        self.__clicker_damage: float = 1.
+    def __init__(self, saved_data: dict = None):
+        if saved_data is None:
+            self.__name = "Player"
+            self.__money: int = 10
+            self.__player_items: list = []
+            self.__health: float = 100.0
+            self.__clicker_damage: float = 1.
+        else:
+            self.__name: str = saved_data["name"]
+            self.__money: int = saved_data["money"]
+            self.__player_items: list = saved_data["player_items"]
+            self.__health: float = saved_data["health"]
+            self.__clicker_damage: float = saved_data["clicker_damage"]
 
         self._initialize_upgrades()
 
@@ -141,3 +150,24 @@ class Player:
 
     def get_clicker_damage(self) -> float:
         return self.__clicker_damage
+
+    def get_money(self) -> float:
+        return self.__money
+
+    def get_items(self) -> list:
+        return self.__player_items
+
+    def get_health(self) -> float:
+        return self.__health
+
+    def change_name(self, name: str):
+        self.__name = name
+
+    def get_name(self) -> str:
+        return self.__name
+
+    def change_money(self, money: float):
+        self.__money += money
+
+    def set_name(self, name: str):
+        self.__name = name

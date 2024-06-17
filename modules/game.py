@@ -1,12 +1,15 @@
 __author__ = "Al0n1"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
-from config import Settings
+from config import Settings, Utils
 from colors import *
 from menues import MainMenu, ClickerMenu, Menu
+from enities import Monster, Player
 
-import pygame
+import pygame as pg
+import json
+import os.path
 
 
 class PlayerInterface:
@@ -35,13 +38,15 @@ class PlayerInterface:
 class Game:
     def __init__(self):
         self.__current_menu = None
-        self.__screen = pygame.display.set_mode((Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT))
-        self.__clock = pygame.time.Clock()
+        self.__screen = pg.display.set_mode((Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT))
+        self.__clock = pg.time.Clock()
 
         self.__player_interface = PlayerInterface({})
 
-        main_menu = MainMenu(self.__screen, self.__player_interface)
-        clicker_menu = ClickerMenu(self.__screen, main_menu, self.__player_interface)
+        self.__player = Player(self.get_player_data())
+
+        main_menu = MainMenu(screen=self.__screen, player_interface=self.__player_interface, game=self)
+        clicker_menu = ClickerMenu(screen=self.__screen, main_menu=main_menu, player_interface=self.__player_interface, game=self)
 
         self.__menus: dict = {
             "main menu": main_menu,
@@ -50,8 +55,10 @@ class Game:
             # "settings menu": SettingsMenu(screen)
         }
 
+        self.__monster = Monster(self.__screen, self.__menus["clicker menu"])
+
     def run(self):
-        pygame.init()
+        pg.init()
 
         self.__menus["main menu"].set_background_color(LIGHT_GRAY)
 
@@ -63,15 +70,52 @@ class Game:
             current_menu: 'Menu' = self.__player_interface.get_current_menu()
             self.__screen.fill(current_menu.get_background_color())
             current_menu.display_menu_items()
-            pygame.display.flip()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
+            pg.display.flip()
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
                     running = False
                     break
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 1:  # Левая кнопка мыши
                         current_menu.handle_click(event.pos)
+                    """if input_rect.collidepoint(event.pos):
+                        active = True
+                    else:
+                        active = False"""
             if not current_menu.get_status():
+                self.save_player_data()
                 break
             self.__clock.tick(60)
+
+    def save_player_data(self, file_name: str = "player_auto_save"):
+        data = dict()
+        data["name"] = self.__player.get_name()
+        data['money'] = self.__player.get_money()
+        data['player_items'] = self.__player.get_items()
+        data['health'] = self.__player.get_health()
+        data['clicker_damage'] = self.__player.get_clicker_damage()
+
+        os.makedirs('saves', exist_ok=True)
+        with open(f'saves/{file_name}.json', 'w') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+    def get_player_data(self, file_name: str = "player_auto_save"):
+        if not os.path.exists(f"saves/{file_name}.json"):
+            print(f"Файл {Utils.PLAYER_AUTO_SAVE_FILE_PATH} не существует.")
+            return None
+
+        with open(f"saves/{file_name}.json", 'r') as f:
+            content = f.read()
+            if not content:
+                print(f"Файл {file_name} пуст.")
+                return None
+            try:
+                data = json.loads(content)
+            except json.JSONDecodeError as e:
+                print(f"Ошибка при декодировании JSON: {e}")
+                return None
+        return data
+
+    def get_player(self) -> Player:
+        return self.__player

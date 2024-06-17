@@ -15,12 +15,12 @@
         "text": "Профессиональная физическая подготовка",
         "target": "clickerPlayer",
         "value": 4,
-        "status": false
+        "status": true
     },
     "clicker_player_damage_basic_lv4": {
         "text": "Максимальная физическая подготовка",
         "target": "clickerPlayer",
         "value": 5,
-        "status": false
+        "status": true
     }
 }

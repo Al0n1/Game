@@ -30,3 +30,7 @@ class Utils:
     SCALE_OF_MONSTERS_IN_CLICKER: int = 5
 
     BASIC_FONT = pygame.font.SysFont(None, 24)
+
+    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/player_auto_save.json"
+
+    REWARD_FOR_KILL: int = 1
