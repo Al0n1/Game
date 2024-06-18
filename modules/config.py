@@ -26,7 +26,22 @@ class Utils:
         'zombieFemale',
         'zombieWild',
     ]
-    MONSTER_HP_IN_CLICKER: float = 10.0
+    MONSTER_MAX_HP_IN_CLICKER: float = 10.0
     SCALE_OF_MONSTERS_IN_CLICKER: int = 5
 
+    #fields
+    MONSTER_HP_WIDTH: int = 100
+    MONSTER_HP_HEIGHT: int = 50
+
+    PLAYER_MONEY_WIDTH: int = 100
+    PLAYER_MONEY_HEIGHT: int = 50
+    PLAYER_MONEY_DAMAGE_INDENT = 20
+    PLAYER_DAMAGE_WIDTH: int = 100
+    PLAYER_DAMAGE_HEIGHT: int = 50
+
+
     BASIC_FONT = pygame.font.SysFont(None, 24)
+
+    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/player_auto_save.json"
+
+    REWARD_FOR_KILL: int = 1

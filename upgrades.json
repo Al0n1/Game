@@ -3,24 +3,28 @@
         "text": "Базовая физическая подготовка",
         "target": "clickerPlayer",
         "value": 2,
-        "status": true
+        "status": false,
+        "price": 20
     },
     "clicker_player_damage_basic_lv2": {
         "text": "Продвинутая физическая подготовка",
         "target": "clickerPlayer",
         "value": 3,
-        "status": true
+        "status": false,
+        "price": 50
     },
     "clicker_player_damage_basic_lv3": {
         "text": "Профессиональная физическая подготовка",
         "target": "clickerPlayer",
         "value": 4,
-        "status": false
+        "status": false,
+        "price": 80
     },
     "clicker_player_damage_basic_lv4": {
         "text": "Максимальная физическая подготовка",
         "target": "clickerPlayer",
         "value": 5,
-        "status": false
+        "status": false,
+        "price": 110
     }
 }

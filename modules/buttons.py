@@ -1,9 +1,10 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.3"
 
 
 import pygame
 import json
+
 from colors import *
 
 
@@ -50,6 +51,9 @@ class Button:
     def set_color(self, color: tuple):
         self.__color = color
 
+    def change_text(self, text: str):
+        self.__text = text
+
 
 class ExitButton(Button):
     def click_action(self):
@@ -67,34 +71,46 @@ class StartButton(Button):
 
 class UpgradeButton(Button):
     def __init__(self, name: str, target: object, value: float, text: str, menu: 'ClickerMenu', screen, rect: pygame.Rect,
-                 color: tuple, font: pygame.font.SysFont, status: bool):
+                 color: tuple, font: pygame.font.SysFont, status: bool, price: int):
         super().__init__(menu, screen, rect, text, color, name, font)
         self.__target = target
-        self.__value = value
-        self.__status = status
+        self.__value: float = value
+        self.__status: bool = status
+        self.__price: int = price
+        self.change_text(self.get_text() + f" | {self.__price}")
 
     def change_status(self):
         self.__status = not self.__status
-        with open('upgrades.json') as f:
+        with open('upgrades.json', 'r') as f:
             data = json.load(f)
         data[self.get_name()]['status'] = not data[self.get_name()]['status']
         with open('upgrades.json', 'w') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
-    def get_value(self):
+    def get_value(self) -> float:
         return self.__value
 
     def get_target(self):
         return self.__target
 
-    def get_status(self):
+    def get_status(self) -> bool:
         return self.__status
+
+    def get_price(self) -> int:
+        return self.__price
 
     def click_action(self):
         if not self.__status:
-            self.change_status()
             value = self.get_value()
             target = self.get_target()
+            price = self.get_price()
             if target == "clickerPlayer":
-                self.get_menu().get_player().change_clicker_damage(value)
-            self.set_color(GRAY)
+                if self.get_menu().get_player().get_money() >= price:
+                    self.change_status()
+                    self.get_menu().get_player().change_clicker_damage(value)
+                    self.get_menu().get_player().change_money(-price)
+                    self.set_color(GRAY)
+
+
+#class ChangePlayerName(Button):
+
