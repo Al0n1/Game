@@ -1,13 +1,15 @@
 __author__ = "Al0n1"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
+
+import json
+import pygame
 
 from colors import *
 from config import Settings, Utils
 from buttons import StartButton, ExitButton, UpgradeButton
-import json
-from enities import Monster, Player
-import pygame
+from player import Player
+from fields import MonsterHP, PlayerMoney, PlayerDamage
 
 
 class Menu:
@@ -20,7 +22,6 @@ class Menu:
         self.__interface = player_interface
         self.__background_color: tuple = WHITE
         self.__game = game
-        self.__player = game.get_player()
 
     def add_item(self, item: object):
         self.__menu_items.append(item)
@@ -73,9 +74,6 @@ class Menu:
 
     def get_game(self) -> 'Game':
         return self.__game
-
-    def get_player(self) -> 'Player':
-        return self.__player
 
 
 class MainMenu(Menu):
@@ -132,12 +130,105 @@ class ClickerMenu(Menu):
 
         self.__upgrades: list['UpgradeButton'] = []
 
+        self.__player = game.get_player()
+        self.__monster = game.get_monster()
+
         self.set_prev_menu(main_menu)
         self.initialize_items()
         self.__background_color: tuple = GRAY
 
     def initialize_items(self):
         exit_button_x, exit_button_y = Settings.SCREEN_WIDTH * .79, Settings.SCREEN_HEIGHT * .90
+
+        # Инициализация кнопки "Выход"
+        ExitButton(self, self.get_screen(),
+                   pygame.Rect(exit_button_x, exit_button_y, Utils.MAIN_MENU_BUTTON_WIDTH, Utils.MAIN_MENU_BUTTON_HEIGHT),
+                   "Выход",
+                   (0, 0, 0),
+                   name="end",
+                   font=Utils.BASIC_FONT)
+
+        upgrade_button_y = Utils.CLICKER_UPGRADE_BUTTON_Y
+
+        with open("upgrades.json", "r", encoding='utf-8') as file:
+            data = json.load(file)
+
+        for upgrade in data.keys():
+            upgrade_button = UpgradeButton(menu=self, screen=self.get_screen(),
+                                           rect=pygame.Rect(Utils.CLICKER_UPGRADE_BUTTON_X, upgrade_button_y,
+                                                            Utils.CLICKER_UPGRADE_BUTTON_WIDTH,
+                                                            Utils.CLICKER_UPGRADE_BUTTON_HEIGHT),
+                                           text=data[upgrade]["text"],
+                                           color=GRAY if data[upgrade]["status"] else BLACK,
+                                           name=upgrade,
+                                           font=Utils.BASIC_FONT,
+                                           target=data[upgrade]["target"],
+                                           value=data[upgrade]["value"],
+                                           status=data[upgrade]["status"],
+                                           price=data[upgrade]["price"])
+            self.__upgrades.append(upgrade_button)
+            upgrade_button_y += Utils.CLICKER_UPGRADE_BUTTON_INDENT + Utils.CLICKER_UPGRADE_BUTTON_HEIGHT
+
+        self.add_item(self.__monster)
+
+        self.add_item(MonsterHP(self))
+        self.add_item(PlayerMoney(self))
+        self.add_item(PlayerDamage(self))
+
+    def get_player(self) -> 'Player':
+        return self.__player
+
+    def get_monster(self) -> 'Monster':
+        return self.__monster
+
+    def set_monster(self, monster: 'Monster'):
+        self.__monster = monster
+
+    def get_upgrades(self) -> list:
+        return self.__upgrades
+
+
+class ClickerUpgradesMenu:
+    def __init__(self, menu):
+        self.__menu = menu
+
+        self.__upgrade = list
+
+    def get_upgrades_from_file(self):
+        upgrades = list
+
+        with open("upgrades.json", "r") as file:
+            data = json.load(file)
+
+        for upgrade in data.keys():
+            upgrade_button = UpgradeButton(menu=self, screen=self.get_screen(),
+                                           rect=pygame.Rect(Utils.CLICKER_UPGRADE_BUTTON_X, upgrade_button_y,
+                                                            Utils.CLICKER_UPGRADE_BUTTON_WIDTH,
+                                                            Utils.CLICKER_UPGRADE_BUTTON_HEIGHT),
+                                           text=data[upgrade]["text"].encode('windows-1251'),
+                                           color=GRAY if data[upgrade]["status"] else BLACK,
+                                           name=upgrade,
+                                           font=Utils.BASIC_FONT,
+                                           target=data[upgrade]["target"],
+                                           value=data[upgrade]["value"],
+                                           status=data[upgrade]["status"])
+            upgrades.append(upgrade_button)
+
+        return upgrades
+
+
+class AutoClickerUpgradesMenu:
+    def __init__(self, screen, player_interface, game):
+
+        self.__monster = self.get_game().get_monster()
+
+        self.__upgrades: list['UpgradeButton'] = []
+
+        self.initialize_items()
+        self.__background_color: tuple = GRAY
+
+    def initialize_items(self):
+        go_back_button_x, go_back_button_y = Settings.SCREEN_WIDTH * .79, Settings.SCREEN_HEIGHT * .90
 
         # Инициализация кнопки "Выход"
         ExitButton(self, self.get_screen(),
@@ -167,12 +258,8 @@ class ClickerMenu(Menu):
             self.__upgrades.append(upgrade_button)
             upgrade_button_y += Utils.CLICKER_UPGRADE_BUTTON_INDENT + Utils.CLICKER_UPGRADE_BUTTON_HEIGHT
 
-        self.add_item(Monster(screen=self.get_screen(), menu=self))
+        self.add_item(self.get_monster())
 
-
-class AutoClickerMenu:
-    def display_menu(self):
+    def display(self):
         pass
 
-    def handle_click(self):
-        pass

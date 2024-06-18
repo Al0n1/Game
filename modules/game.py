@@ -1,15 +1,16 @@
 __author__ = "Al0n1"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
-
-from config import Settings, Utils
-from colors import *
-from menues import MainMenu, ClickerMenu, Menu
-from enities import Monster, Player
 
 import pygame as pg
 import json
 import os.path
+
+from config import Settings, Utils
+from colors import *
+from menues import MainMenu, ClickerMenu, Menu
+from player import Player
+from monster import Monster
 
 
 class PlayerInterface:
@@ -44,6 +45,7 @@ class Game:
         self.__player_interface = PlayerInterface({})
 
         self.__player = Player(self.get_player_data())
+        self.__monster = Monster(screen=self.__screen)
 
         main_menu = MainMenu(screen=self.__screen, player_interface=self.__player_interface, game=self)
         clicker_menu = ClickerMenu(screen=self.__screen, main_menu=main_menu, player_interface=self.__player_interface, game=self)
@@ -55,7 +57,8 @@ class Game:
             # "settings menu": SettingsMenu(screen)
         }
 
-        self.__monster = Monster(self.__screen, self.__menus["clicker menu"])
+        clicker_menu.set_monster(self.__monster)
+        self.__monster.set_menu(self.__menus['clicker menu'])
 
     def run(self):
         pg.init()
@@ -119,3 +122,6 @@ class Game:
 
     def get_player(self) -> Player:
         return self.__player
+
+    def get_monster(self) -> 'Monster':
+        return self.__monster
