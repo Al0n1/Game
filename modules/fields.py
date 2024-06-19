@@ -8,9 +8,10 @@ import pygame as pg
 
 
 class Field:
-    def __init__(self, menu):
+    def __init__(self, menu, state: bool):
         self.__rect = None
         self.__menu = menu
+        self.__state = state
 
     def display(self):
         pass
@@ -27,10 +28,15 @@ class Field:
     def get_menu(self):
         return self.__menu
 
+    def get_state(self) -> bool:
+        return self.__state
+
+    def change_state(self):
+        self.__state = not self.__state
 
 class MonsterHP(Field):
-    def __init__(self, menu):
-        super().__init__(menu)
+    def __init__(self, menu, state: bool = False):
+        super().__init__(menu, state)
 
         menu = self.get_menu()
         self.__monster = menu.get_monster()
@@ -51,8 +57,8 @@ class MonsterHP(Field):
 
 
 class PlayerMoney(Field):
-    def __init__(self, menu):
-        super().__init__(menu)
+    def __init__(self, menu, state: bool = False):
+        super().__init__(menu, state)
 
         menu = self.get_menu()
         self.__monster = menu.get_monster()
@@ -77,8 +83,8 @@ class PlayerMoney(Field):
 
 
 class PlayerDamage(Field):
-    def __init__(self, menu):
-        super().__init__(menu)
+    def __init__(self, menu, state: bool = False):
+        super().__init__(menu, state)
 
         menu = self.get_menu()
         self.__monster = menu.get_monster()

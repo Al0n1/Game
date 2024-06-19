@@ -1,9 +1,8 @@
-import pygame
+import pygame as pg
+pg.init()
 
 
 class Settings:
-    pygame.init()
-
     SCREEN_WIDTH: int = 1280
     SCREEN_HEIGHT: int = 800
 
@@ -39,9 +38,26 @@ class Utils:
     PLAYER_DAMAGE_WIDTH: int = 100
     PLAYER_DAMAGE_HEIGHT: int = 50
 
+    AUTO_CLICKER_COOLDOWN = 1000
 
-    BASIC_FONT = pygame.font.SysFont(None, 24)
+    BASIC_FONT = pg.font.SysFont(None, 24)
 
-    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/player_auto_save.json"
+    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/auto_save.json"
 
     REWARD_FOR_KILL: int = 1
+
+    UPGRADE_MENU_X: int = 700
+    UPGRADE_MENU_Y: int = 0
+    UPGRADE_MENU_WIDTH = CLICKER_UPGRADE_BUTTON_WIDTH
+    UPGRADE_MENU_HEIGHT: int = 700
+
+    CHANGE_UPGRADES_MENU_BUTTON_X: int = Settings.SCREEN_WIDTH - 200
+    CHANGE_UPGRADES_MENU_BUTTON_Y: int = Settings.SCREEN_HEIGHT - 100
+    CHANGE_UPGRADES_MENU_BUTTON_WIDTH: int = 100
+    CHANGE_UPGRADES_MENU_BUTTON_HEIGHT: int = 50
+    CHANGE_UPGRADES_MENU_BUTTON_RECT = pg.Rect(CHANGE_UPGRADES_MENU_BUTTON_X,
+                                               CHANGE_UPGRADES_MENU_BUTTON_Y,
+                                               CHANGE_UPGRADES_MENU_BUTTON_WIDTH,
+                                               CHANGE_UPGRADES_MENU_BUTTON_HEIGHT)
+    CHANGE_UPGRADES_MENU_BUTTON_MANUAL_TO_AUTO = "Авто-кликер"
+    CHANGE_UPGRADES_MENU_BUTTON_AUTO_TO_MANUAL = "Классический-кликер"
