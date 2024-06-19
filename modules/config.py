@@ -42,7 +42,7 @@ class Utils:
 
     BASIC_FONT = pg.font.SysFont(None, 24)
 
-    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/player_auto_save.json"
+    PLAYER_AUTO_SAVE_FILE_PATH: str = "saves/auto_save.json"
 
     REWARD_FOR_KILL: int = 1
 

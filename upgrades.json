@@ -5,28 +5,28 @@
             "target": "clickerPlayer",
             "value": 2,
             "status": false,
-            "price": 20
+            "price": 10
         },
         "clicker_player_damage_basic_lv2": {
             "text": "Продвинутая физическая подготовка",
             "target": "clickerPlayer",
             "value": 3,
             "status": false,
-            "price": 50
+            "price": 15
         },
         "clicker_player_damage_basic_lv3": {
             "text": "Профессиональная физическая подготовка",
             "target": "clickerPlayer",
             "value": 4,
             "status": false,
-            "price": 80
+            "price": 25
         },
         "clicker_player_damage_basic_lv4": {
             "text": "Максимальная физическая подготовка",
             "target": "clickerPlayer",
             "value": 5,
             "status": false,
-            "price": 110
+            "price": 40
         }
     },
     "auto": {
@@ -55,7 +55,7 @@
             "text": "Крестьянин с копьём",
             "target": "clickerAuto",
             "value": 5,
-            "status": false,
+            "status": falsa,
             "price": 300
         }
     }

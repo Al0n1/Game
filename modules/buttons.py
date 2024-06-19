@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 
 import pygame
@@ -129,7 +129,7 @@ class UpgradeButton(Button):
         if target == "clickerPlayer":
             if self.get_menu().get_player().get_money() >= price:
                 self.change_status()
-                self.get_menu().get_player().change_clicker_damage(value)
+                self.get_menu().get_player().increase_player_damage(value)
                 self.get_menu().get_player().change_money(-price)
                 self.set_color(GRAY)
         if target == "clickerAuto":

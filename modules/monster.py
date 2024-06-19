@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 import pygame as pg
@@ -109,13 +109,12 @@ def create_monster(screen):
 
 
 class Monster:
-    def __init__(self, screen, state: bool = True):
+    def __init__(self, screen, state: bool = True, saved_data: dict = None):
         self.__screen: pg.Surface = screen
         self.__pos: tuple = (50, 75)
         self.__rect: pg.Rect = pg.Rect(self.__pos[0], self.__pos[1], 96 * Utils.SCALE_OF_MONSTERS_IN_CLICKER,
                                                96 * Utils.SCALE_OF_MONSTERS_IN_CLICKER)
-        self.__health: float = Utils.MONSTER_MAX_HP_IN_CLICKER  # Здоровье монстра
-        self.__monster_name: str = ""
+
         self.__filename_of_sprite: str = ""
         self.__sprite: SpriteSheet = None
         self.__frame_index: int = 0
@@ -127,12 +126,16 @@ class Monster:
         self.__already_dead: bool = False  # метка того, что анимация смерти уже проигрывается, если true, то клики
         # перестают обрабатываться
 
+        self.__health: float = Utils.MONSTER_MAX_HP_IN_CLICKER
+        self.__monster_name: str = None
+        self.__monster_counter: int = 0
+
         self.__menu = None
 
         self.__monster_window: pg.Surface = pg.Surface(
             (96 * Utils.SCALE_OF_MONSTERS_IN_CLICKER, 96 * Utils.SCALE_OF_MONSTERS_IN_CLICKER))
 
-        self.change_monster()
+        self.change_monster(self.__monster_name)
 
     def display(self):
         if (self._get_frame_index() >= self._get_number_of_frames() - 1) and (self._get_status_of_monster() != "idle"):
@@ -172,15 +175,23 @@ class Monster:
                 if self.__health < 0:
                     self.__health = 0
                 self.__status_of_monster = 'dead'
+                self.increment_monster_counter()
                 self.change_monster(self.__monster_name)
                 self.__already_dead = True
                 self.__menu.get_player().change_money(Utils.REWARD_FOR_KILL)
+                if self.get_monster_counter() >= 30:
+                    self.set_monster_counter(0)
+                    Utils.MONSTER_MAX_HP_IN_CLICKER += 5
+                    self.__menu.get_player().increment_stage()
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(Utils.MONSTERS_IN_CLICKER) if monster_name is None else monster_name
         self.__filename_of_sprite = self.__monster_name + f"_sheet_{self.__status_of_monster}.png"
         self.__sprite = SpriteSheet(self.__filename_of_sprite)
         self.__monster_sprite_data = self.__sprite.get_data()
+
+    def set_name(self, name: str):
+        self.__monster_name = name
 
     def change_monster_state(self, state):
         self.__state = state
@@ -189,7 +200,7 @@ class Monster:
         self.__status_of_monster = status
 
     def set_hp_to_monster(self, value: float):
-        self.health = value
+        self.__health = value
 
     def change_hp_to_monster(self, value: float):
         self.__health += value
@@ -231,3 +242,15 @@ class Monster:
 
     def get_menu(self):
         return self.__menu
+
+    def increment_monster_counter(self):
+        self.__monster_counter += 1
+
+    def set_monster_counter(self, value: int):
+        self.__monster_counter = value
+
+    def get_monster_counter(self) -> int:
+        return self.__monster_counter
+
+    def get_name(self) -> str:
+        return self.__monster_name
