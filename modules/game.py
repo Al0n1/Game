@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 import pygame as pg
@@ -11,6 +11,7 @@ from colors import *
 from menues import MainMenu, ClickerMenu, Menu
 from player import Player
 from monster import Monster
+from autoclicker import AutoClicker
 
 
 class PlayerInterface:
@@ -58,7 +59,9 @@ class Game:
         }
 
         clicker_menu.set_monster(self.__monster)
-        self.__monster.set_menu(self.__menus['clicker menu'])
+        self.__monster.set_menu(clicker_menu)
+
+        self.__auto_clicker = AutoClicker(menu=clicker_menu, state=True if len(clicker_menu.get_auto_upgrades_menu().get_upgrades()) > 0 else False)
 
     def run(self):
         pg.init()
@@ -73,6 +76,7 @@ class Game:
             current_menu: 'Menu' = self.__player_interface.get_current_menu()
             self.__screen.fill(current_menu.get_background_color())
             current_menu.display_menu_items()
+            self.__auto_clicker.do_click()
             pg.display.flip()
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -82,10 +86,6 @@ class Game:
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 1:  # Левая кнопка мыши
                         current_menu.handle_click(event.pos)
-                    """if input_rect.collidepoint(event.pos):
-                        active = True
-                    else:
-                        active = False"""
             if not current_menu.get_status():
                 self.save_player_data()
                 break
@@ -123,5 +123,8 @@ class Game:
     def get_player(self) -> Player:
         return self.__player
 
-    def get_monster(self) -> 'Monster':
+    def get_monster(self) -> Monster:
         return self.__monster
+
+    def get_auto_clicker(self) -> AutoClicker:
+        return self.__auto_clicker

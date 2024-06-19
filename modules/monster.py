@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 import pygame as pg
@@ -7,7 +7,6 @@ import random
 
 from config import Utils
 from spritesheet import SpriteSheet
-from colors import *
 
 
 """# Components
@@ -110,7 +109,7 @@ def create_monster(screen):
 
 
 class Monster:
-    def __init__(self, screen):
+    def __init__(self, screen, state: bool = True):
         self.__screen: pg.Surface = screen
         self.__pos: tuple = (50, 75)
         self.__rect: pg.Rect = pg.Rect(self.__pos[0], self.__pos[1], 96 * Utils.SCALE_OF_MONSTERS_IN_CLICKER,
@@ -120,7 +119,8 @@ class Monster:
         self.__filename_of_sprite: str = ""
         self.__sprite: SpriteSheet = None
         self.__frame_index: int = 0
-        self.__state: str = "idle"
+        self.__status_of_monster: str = "idle"
+        self.__state = state
         self.__last_frame_tick: int = pg.time.get_ticks()
         self.__cooldown: int = 200
         self.__monster_sprite_data: dict = {}
@@ -135,19 +135,19 @@ class Monster:
         self.change_monster()
 
     def display(self):
-        if (self._get_frame_index() >= self._get_number_of_frames() - 1) and (self._get_state() != "idle"):
-            if self.__state == 'dead':
+        if (self._get_frame_index() >= self._get_number_of_frames() - 1) and (self._get_status_of_monster() != "idle"):
+            if self.__status_of_monster == 'dead':
                 self.set_cooldown(500)
                 if self._can_change_sprite():
                     self.__frame_index = 0
-                    self.__state = "idle"
+                    self.__status_of_monster = "idle"
                     self.change_monster()
                     self.__health = Utils.MONSTER_MAX_HP_IN_CLICKER
                     self.__already_dead = False
                     self.set_cooldown(200)
             else:
                 self.__frame_index = 0
-                self.__state = "idle"
+                self.__status_of_monster = "idle"
                 self.change_monster(self.__monster_name)
         elif self._can_change_sprite():
             self.set_cooldown(200)
@@ -156,34 +156,37 @@ class Monster:
         #text_surface = Utils.BASIC_FONT.render(f"Health: {self.__health}", True, BLACK)
         self.__screen.blit(
             self.__sprite.parse_sprite(scale=Utils.SCALE_OF_MONSTERS_IN_CLICKER, sprite_index=self.__frame_index,
-                                       state=self.__state), (100, 0))
+                                       state=self.__status_of_monster), (100, 0))
 
         #self.__screen.blit(text_surface, (self.__rect.centerx, self.__rect.bottom + 10))
 
-    def click_action(self):
+    def click_action(self, mode: str):
         if not self.__already_dead:
-            self.__state = 'hurt'
+            self.__status_of_monster = 'hurt'
             self.__frame_index = 0
             self.change_monster(self.__monster_name)  # Переключает спрайт стоящего зомби на зомби получающего удар
-            self.change_hp_to_monster(-self.__menu.get_player().get_clicker_damage())
+            self.change_hp_to_monster(-self.__menu.get_player().get_clicker_damage() if mode == "manual" else -self.__menu.get_game().get_auto_clicker().get_damage())
 
             # Обработка смерти монстра
             if self.__health < 1:
                 if self.__health < 0:
                     self.__health = 0
-                self.__state = 'dead'
+                self.__status_of_monster = 'dead'
                 self.change_monster(self.__monster_name)
                 self.__already_dead = True
                 self.__menu.get_player().change_money(Utils.REWARD_FOR_KILL)
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(Utils.MONSTERS_IN_CLICKER) if monster_name is None else monster_name
-        self.__filename_of_sprite = self.__monster_name + f"_sheet_{self.__state}.png"
+        self.__filename_of_sprite = self.__monster_name + f"_sheet_{self.__status_of_monster}.png"
         self.__sprite = SpriteSheet(self.__filename_of_sprite)
         self.__monster_sprite_data = self.__sprite.get_data()
 
     def change_monster_state(self, state):
         self.__state = state
+
+    def change_monster_status(self, status):
+        self.__status_of_monster = status
 
     def set_hp_to_monster(self, value: float):
         self.health = value
@@ -211,11 +214,14 @@ class Monster:
         else:
             return False
 
-    def _get_state(self) -> str:
+    def get_state(self) -> bool:
         return self.__state
 
+    def _get_status_of_monster(self) -> str:
+        return self.__status_of_monster
+
     def _get_number_of_frames(self) -> int:
-        return self.__monster_sprite_data[self.__state]["info"]["numbers_of_frames"]
+        return self.__monster_sprite_data[self._get_status_of_monster()]["info"]["numbers_of_frames"]
 
     def _get_frame_index(self) -> int:
         return self.__frame_index

@@ -25,6 +25,7 @@ class Player:
     def _initialize_upgrades(self):
         with open("upgrades.json") as file:
             data = json.load(file)
+        data = data["manual"]
         for upgrade in data.keys():
             if data[upgrade]["status"] and data[upgrade]["target"] == "clickerPlayer":
                 self.__clicker_damage = data[upgrade]["value"]
