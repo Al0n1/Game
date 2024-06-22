@@ -25,7 +25,7 @@ class AutoClicker:
 
     def _can_do_click(self) -> bool:
         now = pg.time.get_ticks()
-        if now - self.__last_frame_tick >= Utils.AUTO_CLICKER_COOLDOWN and self.__total_damage > 0:
+        if self.__state and now - self.__last_frame_tick >= Utils.AUTO_CLICKER_COOLDOWN and self.__total_damage > 0:
             self.__last_frame_tick = now
             return True
         else:

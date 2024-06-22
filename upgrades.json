@@ -55,7 +55,7 @@
             "text": "Крестьянин с копьём",
             "target": "clickerAuto",
             "value": 5,
-            "status": falsa,
+            "status": false,
             "price": 300
         }
     }

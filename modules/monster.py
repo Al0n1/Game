@@ -129,6 +129,7 @@ class Monster:
         self.__health: float = Utils.MONSTER_MAX_HP_IN_CLICKER
         self.__monster_name: str = None
         self.__monster_counter: int = 0
+        self.__reward: int = 1
 
         self.__menu = None
 
@@ -178,11 +179,12 @@ class Monster:
                 self.increment_monster_counter()
                 self.change_monster(self.__monster_name)
                 self.__already_dead = True
-                self.__menu.get_player().change_money(Utils.REWARD_FOR_KILL)
+                self.__menu.get_player().change_money(self.get_reward())
                 if self.get_monster_counter() >= 30:
                     self.set_monster_counter(0)
                     Utils.MONSTER_MAX_HP_IN_CLICKER += 5
                     self.__menu.get_player().increment_stage()
+                    self.increment_reward()
 
     def change_monster(self, monster_name: str = None):
         self.__monster_name = random.choice(Utils.MONSTERS_IN_CLICKER) if monster_name is None else monster_name
@@ -254,3 +256,12 @@ class Monster:
 
     def get_name(self) -> str:
         return self.__monster_name
+
+    def set_reward(self, reward: int):
+        self.__reward = reward
+
+    def get_reward(self) -> int:
+        return self.__reward
+
+    def increment_reward(self):
+        self.__reward += 1
