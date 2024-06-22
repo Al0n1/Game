@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.1.4"
+__version__ = "0.1.6"
 
 
 import pygame as pg
@@ -12,6 +12,24 @@ from menues import MainMenu, ClickerMenu, Menu
 from player import Player
 from monster import Monster
 from autoclicker import AutoClicker
+
+
+def get_saved_data(file_name: str = "auto_save", key: str = None):
+    if not os.path.exists(f"saves/{file_name}.json"):
+        print(f"Файл {Utils.PLAYER_AUTO_SAVE_FILE_PATH} не существует.")
+        return None
+
+    with open(f"saves/{file_name}.json", 'r') as f:
+        content = f.read()
+        if not content:
+            print(f"Файл {file_name} пуст.")
+            return None
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError as e:
+            print(f"Ошибка при декодировании JSON: {e}")
+            return None
+    return data[key] if key else data
 
 
 class PlayerInterface:
@@ -50,20 +68,25 @@ class Game:
 
         self.load_save()
 
-        main_menu = MainMenu(screen=self.__screen, player_interface=self.__player_interface, game=self)
-        clicker_menu = ClickerMenu(screen=self.__screen, main_menu=main_menu, player_interface=self.__player_interface, game=self)
+        main_menu = MainMenu(screen=self.__screen,
+                             player_interface=self.__player_interface,
+                             game=self)
+        clicker_menu = ClickerMenu(screen=self.__screen,
+                                   main_menu=main_menu,
+                                   player_interface=self.__player_interface,
+                                   game=self)
 
         self.__menus: dict = {
             "main menu": main_menu,
-            "clicker menu": clicker_menu,
-            # "rogue menu": RogueLikeMenu(screen),
-            # "settings menu": SettingsMenu(screen)
+            "clicker menu": clicker_menu
         }
 
         clicker_menu.set_monster(self.__monster)
         self.__monster.set_menu(clicker_menu)
 
-        self.__auto_clicker = AutoClicker(menu=clicker_menu, state=True if len(clicker_menu.get_auto_upgrades_menu().get_upgrades()) > 0 else False)
+        self.__auto_clicker = AutoClicker(menu=clicker_menu,
+                                          state=True if len(clicker_menu.get_auto_upgrades_menu().get_upgrades()) > 0
+                                          else False)
 
     def run(self):
         pg.init()
@@ -86,7 +109,7 @@ class Game:
                     running = False
                     break
                 elif event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # Левая кнопка мыши
+                    if event.button == 1:  # Нажата левая кнопка мыши
                         current_menu.handle_click(event.pos)
             if not current_menu.get_status():
                 self.save_data()
@@ -105,30 +128,14 @@ class Game:
         data["monster"]["name"] = self.__monster.get_name()
         data["monster"]["counter"] = self.__monster.get_monster_counter()
         data["monster"]["health"] = self.__monster.get_hp()
+        data["monster"]["reward"] = self.__monster.get_reward()
 
         os.makedirs('saves', exist_ok=True)
         with open(f'saves/{file_name}.json', 'w') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
-    def get_saved_data(self, file_name: str = "auto_save", key: str = None):
-        if not os.path.exists(f"saves/{file_name}.json"):
-            print(f"Файл {Utils.PLAYER_AUTO_SAVE_FILE_PATH} не существует.")
-            return None
-
-        with open(f"saves/{file_name}.json", 'r') as f:
-            content = f.read()
-            if not content:
-                print(f"Файл {file_name} пуст.")
-                return None
-            try:
-                data = json.loads(content)
-            except json.JSONDecodeError as e:
-                print(f"Ошибка при декодировании JSON: {e}")
-                return None
-        return data[key] if key else data
-
     def load_save(self):
-        player_data = self.get_saved_data(key="player")
+        player_data = get_saved_data(key="player")
         if player_data:
             self.__player.set_stage(player_data["stage"])
             self.__player.set_name(player_data["name"])
@@ -142,12 +149,12 @@ class Game:
                 Utils.MONSTER_MAX_HP_IN_CLICKER += 5
                 stage -= 1
 
-        monster_data = self.get_saved_data(key="monster")
+        monster_data = get_saved_data(key="monster")
         if monster_data:
             self.__monster.set_name(monster_data["name"])
             self.__monster.set_monster_counter(monster_data["counter"])
             self.__monster.set_hp_to_monster(monster_data["health"])
-
+            self.__monster.set_reward(monster_data["reward"])
 
     def get_player(self) -> Player:
         return self.__player

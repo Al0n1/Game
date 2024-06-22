@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 
 import pygame
@@ -11,14 +11,14 @@ from config import Utils
 
 class Button:
     def __init__(self, menu: 'Menu', screen, rect: pygame.Rect, text: str, color: tuple, name: str,
-                 font: pygame.font.SysFont, state: bool):
+                 font: pygame.font, state: bool):
         self.__screen = screen
         self.__rect = rect  # прямоугольник, описывающий положение и размер элемента
         self.__text = text  # текст элемента
         self.__color = color  # цвет текста
         self.__name = name
         self.__menu = menu
-        self.__font = font
+        self.__font: pygame.font.SysFont = font
         self.__state: bool = state
 
     def change_state(self):
@@ -37,7 +37,7 @@ class Button:
         self.__menu.add_item(self)
 
     def display(self):
-        pygame.draw.rect(self.__screen, (255, 255, 255), self.__rect, border_radius=5)
+        pygame.draw.rect(self.__screen, WHITE, self.__rect, border_radius=5)
         text_surface = self.__font.render(self.__text, True, self.__color)
         text_rect = text_surface.get_rect(center=self.__rect.center)
         self.__screen.blit(text_surface, text_rect)
@@ -97,7 +97,6 @@ class UpgradeButton(Button):
         self.__price: int = price
         self.change_text(self.get_text() + f" | {self.__price}")
         self.__mode: str = mode
-        #self.__menu_state: bool = menu.get_state()
 
     def change_status(self):
         self.__status = not self.__status
@@ -126,18 +125,14 @@ class UpgradeButton(Button):
         value = self.get_value()
         target = self.get_target()
         price = self.get_price()
-        if target == "clickerPlayer":
-            if self.get_menu().get_player().get_money() >= price:
-                self.change_status()
+        if self.get_menu().get_player().get_money() >= price:
+            self.change_status()
+            self.get_menu().get_player().change_money(-price)
+            self.set_color(GRAY)
+            if target == "clickerPlayer":
                 self.get_menu().get_player().increase_player_damage(value)
-                self.get_menu().get_player().change_money(-price)
-                self.set_color(GRAY)
-        if target == "clickerAuto":
-            if self.get_menu().get_player().get_money() >= price:
-                self.change_status()
-                self.get_menu().get_player().change_money(-price)
+            if target == "clickerAuto":
                 self.get_menu().get_game().get_auto_clicker().update_damage()
-                self.set_color(GRAY)
 
 
 class ChangeModeButton(Button):

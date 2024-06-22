@@ -1,10 +1,11 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
+
+import pygame as pg
 
 from colors import *
 from config import Utils
-import pygame as pg
 
 
 class Field:
@@ -33,6 +34,7 @@ class Field:
 
     def change_state(self):
         self.__state = not self.__state
+
 
 class MonsterHP(Field):
     def __init__(self, menu, state: bool = False):
@@ -103,6 +105,3 @@ class PlayerDamage(Field):
         text_surface = Utils.BASIC_FONT.render(f"Damage per click: {damage}", True, BLACK)
 
         self.__screen.blit(text_surface, (self.get_rect().right, self.get_rect().top + Utils.PLAYER_MONEY_DAMAGE_INDENT))
-
-
-# class InputPlayerName:

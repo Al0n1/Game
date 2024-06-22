@@ -1,26 +1,18 @@
 __author__ = "Al0n1"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 import json
 
 
 class Player:
-    def __init__(self, saved_data: dict = None):
-        if saved_data is None:
-            self.__name = "Player"
-            self.__money: int = 10
-            self.__player_items: list = []
-            self.__health: float = 100.0
-            self.__clicker_damage: float = 1.
-            self.__stage = 0
-        else:
-            self.__name: str = saved_data["name"]
-            self.__money: int = saved_data["money"]
-            self.__player_items: list = saved_data["player_items"]
-            self.__health: float = saved_data["health"]
-            self.__clicker_damage: float = saved_data["clicker_damage"]
-            self.__stage: int = saved_data["stage"]
+    def __init__(self):
+        self.__name = "Player"
+        self.__money: int = 10
+        self.__player_items: list = []
+        self.__health: float = 100.0
+        self.__clicker_damage: float = 1.
+        self.__stage = 0
 
         self._initialize_upgrades()
 
