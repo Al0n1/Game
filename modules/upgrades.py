@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 import json
@@ -12,10 +12,7 @@ from colors import *
 
 class ClickerUpgradesButtonMenu:
     def __init__(self, menu, mode: str, state: bool = False):
-        self.__rect = pg.Rect(Utils.UPGRADE_MENU_X,
-                              Utils.UPGRADE_MENU_Y,
-                              Utils.UPGRADE_MENU_WIDTH,
-                              Utils.UPGRADE_MENU_HEIGHT)
+        self.__rect = Utils.UPGRADE_MENU_RECT
         self.__menu = menu
 
         self.__state: bool = state

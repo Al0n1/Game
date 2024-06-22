@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 import pygame as pg

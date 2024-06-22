@@ -1,5 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 
 
 import pygame as pg
@@ -78,9 +78,7 @@ class Game:
 
         self.__menus: dict = {
             "main menu": main_menu,
-            "clicker menu": clicker_menu,
-            # "rogue menu": RogueLikeMenu(screen),
-            # "settings menu": SettingsMenu(screen)
+            "clicker menu": clicker_menu
         }
 
         clicker_menu.set_monster(self.__monster)
@@ -111,7 +109,7 @@ class Game:
                     running = False
                     break
                 elif event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # Левая кнопка мыши
+                    if event.button == 1:  # Нажата левая кнопка мыши
                         current_menu.handle_click(event.pos)
             if not current_menu.get_status():
                 self.save_data()
@@ -157,7 +155,6 @@ class Game:
             self.__monster.set_monster_counter(monster_data["counter"])
             self.__monster.set_hp_to_monster(monster_data["health"])
             self.__monster.set_reward(monster_data["reward"])
-
 
     def get_player(self) -> Player:
         return self.__player

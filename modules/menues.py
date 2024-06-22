@@ -1,6 +1,5 @@
 __author__ = "Al0n1"
-__version__ = "0.0.4"
-
+__version__ = "0.0.5"
 
 import pygame as pg
 
@@ -42,9 +41,9 @@ class Menu:
         for item in self.__menu_items:
             if item.get_state():
                 if item.get_rect().collidepoint(pos):
-                    if type(item) == ClickerUpgradesButtonMenu:
+                    if isinstance(item, ClickerUpgradesButtonMenu):
                         item.click_action(pos)
-                    elif type(item) == Monster:
+                    elif isinstance(item, Monster):
                         item.click_action(mode="manual")
                     else:
                         item.click_action()
@@ -90,48 +89,24 @@ class MainMenu(Menu):
 
         self.initialize_items()
 
-        """self.input_rect = pg.Rect(200, 200, 140, 32)
-        self.color_active = pg.Color('lightskyblue3')
-        self.color_passive = pg.Color('chartreuse4')
-        self.color = self.color_passive
-        self.active = False"""
-
     def initialize_items(self):
-        button1_x = (Settings.SCREEN_WIDTH - Utils.MAIN_MENU_BUTTON_WIDTH) // 2
-        button1_y = (Settings.SCREEN_HEIGHT - Utils.MAIN_MENU_BUTTON_HEIGHT) // 2 - 50
-
-        button2_x = button1_x
-        button2_y = button1_y + Utils.MAIN_MENU_BUTTON_HEIGHT + 30
-
         # Инициализация кнопки "Начать игру"
-        StartButton(self, self.get_screen(),
-                    pg.Rect(button1_x, button1_y, Utils.MAIN_MENU_BUTTON_WIDTH, Utils.MAIN_MENU_BUTTON_HEIGHT),
-                    "Начать игру",
-                    (0, 0, 0),
+        StartButton(menu=self, screen=self.get_screen(),
+                    rect=Utils.START_BUTTON_RECT,
+                    text="Начать игру",
+                    color=BLACK,
                     name="start",
                     font=pg.font.SysFont(None, 48),
                     state=True)
 
         # Инициализация кнопки "Выход"
-        ExitButton(self, self.get_screen(),
-                   pg.Rect(button2_x, button2_y, Utils.MAIN_MENU_BUTTON_WIDTH, Utils.MAIN_MENU_BUTTON_HEIGHT),
-                   "Выход",
-                   (0, 0, 0),
+        ExitButton(menu=self, screen=self.get_screen(),
+                   rect=Utils.EXIT_BUTTON_RECT,
+                   text="Выход",
+                   color=BLACK,
                    name="end",
                    font=pg.font.SysFont(None, 48),
                    state=True)
-
-    """def get_status_of_input(self) -> bool:
-        return self.active
-
-    def change_status_of_input(self):
-        self.active = not self.active
-
-    def get_input_rect(self):
-        return self.input_rect
-
-    def change_color_of_input(self):
-        self.color = self.color_active if self.color is self.color_passive else self.color_passive"""
 
 
 class ClickerMenu(Menu):
@@ -150,13 +125,10 @@ class ClickerMenu(Menu):
         self.initialize_items()
 
     def initialize_items(self):
-        exit_button_x, exit_button_y = 1100, 750
-
-        # Инициализация кнопки "Выход"
-        ExitButton(self, self.get_screen(),
-                   pg.Rect(exit_button_x, exit_button_y, 100, 50),
-                   "Выход",
-                   (0, 0, 0),
+        ExitButton(menu=self, screen=self.get_screen(),
+                   rect=Utils.CLICKER_EXIT_BUTTON_RECT,
+                   text="Выход",
+                   color=BLACK,
                    name="end",
                    font=Utils.BASIC_FONT,
                    state=True)
@@ -178,8 +150,6 @@ class ClickerMenu(Menu):
         self.add_item(MonsterHP(menu=self, state=True))
         self.add_item(PlayerMoney(menu=self, state=True))
         self.add_item(PlayerDamage(menu=self, state=True))
-
-
 
     def get_player(self) -> 'Player':
         return self.__player
